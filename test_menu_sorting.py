@@ -2,6 +2,7 @@ import time
 
 import pytest
 from selenium.webdriver import Chrome
+from selenium.webdriver.support.ui import Select
 
 
 @pytest.fixture(scope="session")
@@ -70,13 +71,17 @@ def test_geozones_sorting(setup_environment):
     sub_zones_name_col = 2
     print(len(zones))
     for index in range(len(zones)):
+        index = 0
         driver.find_elements_by_xpath(row_xpath)[index].find_element_by_css_selector('td>a').click()
         time.sleep(2)
         sub_zones = driver.find_elements_by_xpath("//table[@class='dataTable']/*/tr")[1:-1]
         sub_zones_list = list()
         for sub_zone in sub_zones:
-            sub_zones_list.append(sub_zone.find_elements_by_css_selector('td')[sub_zones_name_col].text)
-        assert sub_zones_list == sorted(sub_zones_list)
+            item = sub_zone.find_elements_by_css_selector('td')[sub_zones_name_col]
+            select = Select(item.find_element_by_css_selector("select"))
+            sub_zones_list.append(select.first_selected_option.text)
+        print(sub_zones_list)
+        assert sub_zones_list == sorted(sub_zones_list), sub_zones_list
         driver.back()
 
 
